@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FirstDemo.Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,6 +7,6 @@ using System.Threading.Tasks;
 
 namespace FirstDemo.Domain.Repositories;
 
-public interface ICourseRepository
+public interface ICourseRepository : IRepositoryBase<Course, Guid>
 {
 }
