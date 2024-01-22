@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using FirstDemo.Infrastructure;
 using FirstDemo.Web.Areas.Admin.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -39,5 +40,14 @@ public class CourseController : Controller
         }
 
           return View(courseModel);
+    }
+
+    public async Task<JsonResult> GetCourses()
+    {
+        var dataTablesModel = new DataTablesAjaxRequestUtility(Request);
+        var model = _scope.Resolve<CourseListModel>();
+
+        var data = await model.GetDataOfCoursesAsync(dataTablesModel);
+        return Json(data);
     }
 }

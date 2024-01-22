@@ -56,6 +56,11 @@
     <script>
         $(function () {
             $("#vehicles").DataTable({
+                "processing": true,
+                "serverSide": true,
+                "ajax": {
+                    "url": "/Admin/Course/GetCourses",
+                },
                 "responsive": true, "lengthChange": false, "autoWidth": false,
                 "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
             }).buttons().container().appendTo('#vehicles_wrapper .col-md-6:eq(0)');
