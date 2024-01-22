@@ -24,5 +24,8 @@ public class CourseManagementService : ICourseManagementService
             Description = description,
             Fees = fees
         };
+
+        _unitOfWork.CourseRepository.Add(course);
+        await _unitOfWork.SaveAsync();
     }
 }

@@ -34,7 +34,7 @@ public class CourseController : Controller
         if (ModelState.IsValid)
         {
             courseModel.Resolve(_scope);
-            courseModel.CreateCourseAsync();
+            await courseModel.CreateCourseAsync();
             return RedirectToAction("Index");
         }
 
