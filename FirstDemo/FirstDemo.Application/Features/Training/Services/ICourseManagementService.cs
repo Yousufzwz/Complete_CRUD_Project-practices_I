@@ -8,4 +8,6 @@ public interface ICourseManagementService
 
     Task<(IList<Course> records, int total, int totalDisplay)>
         GetDataOfCoursesAsync(int pageIndex, int pageSize, string searchText, string sortBy);
+
+    Task RemoveCourseAsync(Guid id);
 }

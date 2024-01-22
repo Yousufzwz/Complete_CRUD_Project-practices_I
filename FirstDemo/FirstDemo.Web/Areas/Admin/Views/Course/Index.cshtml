@@ -17,7 +17,7 @@
                 <!-- /.card-header -->
                 <div class="card-body">
                     <partial name="_ResponsePartial" />
-                    <table id="vehicles" class="table table-bordered table-striped">
+                    <table id="courses" class="table table-bordered table-striped">
                         <thead>
                             <tr>
                                 <th>Title</th>
@@ -55,15 +55,44 @@
     <script src="~/admin/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
     <script>
         $(function () {
-            $("#vehicles").DataTable({
+            $("#courses").DataTable({
                 "processing": true,
                 "serverSide": true,
                 "ajax": {
                     "url": "/Admin/Course/GetCourses",
                 },
+                columnDefs: [
+                    {
+                        orderable: false,
+                        targets: 3,
+                        render: function (data, type, row) {
+                            return `<button type="submit" class="btn btn-info btn-sm" onclick="window.location.href='/admin/course/update/${data}'" value='${data}'>
+                                                <i class="fas fa-pencil-alt">
+                                                </i>
+                                                Edit
+                                            </button>
+                                            <button type="submit" class="btn btn-danger btn-sm show-bs-modal" data-id='${data}' value='${data}'>
+                                                <i class="fas fa-trash">
+                                                </i>
+                                                Delete
+                                            </button>`;
+                        }
+                    }
+                ],
                 "responsive": true, "lengthChange": false, "autoWidth": false,
                 "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
-            }).buttons().container().appendTo('#vehicles_wrapper .col-md-6:eq(0)');
+            }).buttons().container().appendTo('#courses_wrapper .col-md-6:eq(0)');
+            $('#courses').on('click', '.show-bs-modal', function (event) {
+                var id = $(this).data("id");
+                var modal = $("#modal-default");
+                modal.find('.modal-body p').text('Are you sure you want to delete this record?');
+                $("#deleteId").val(id);
+                $("#deleteForm").attr("action", "/admin/course/delete");
+                modal.modal('show');
+            });
+            $("#deleteButton").click(function () {
+                $("#deleteForm").submit();
+            });
         });
     </script>
 }

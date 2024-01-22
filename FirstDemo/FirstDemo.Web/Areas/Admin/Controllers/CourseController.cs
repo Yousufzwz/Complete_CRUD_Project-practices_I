@@ -50,4 +50,41 @@ public class CourseController : Controller
         var data = await model.GetDataOfCoursesAsync(dataTablesModel);
         return Json(data);
     }
+
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var courseModel = _scope.Resolve<CourseListModel>();
+
+        if (ModelState.IsValid)
+        {
+            try
+            {
+                await courseModel.RemoveCourseAsync(id);
+                TempData.Put("ResponseMessage", new ResponseModel
+                {
+                    Message = "Course successfully removed!",
+                    Type = ResponseTypes.Success
+                });
+
+                return RedirectToAction("Index");
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Server Error");
+
+                TempData.Put("ResponseMessage", new ResponseModel
+                {
+                    Message = "Failed to removed a course!",
+                    Type = ResponseTypes.Danger
+                });
+            }
+        }
+
+        return RedirectToAction("Index");
+    }
+
 }
+

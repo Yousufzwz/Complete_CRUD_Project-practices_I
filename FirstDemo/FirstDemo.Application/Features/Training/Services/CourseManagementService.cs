@@ -40,4 +40,10 @@ public class CourseManagementService : ICourseManagementService
         return await _unitOfWork.CourseRepository.GetTableDataAsync(searchText, sortBy,
             pageIndex, pageSize);
     }
+
+    public async Task RemoveCourseAsync(Guid id)
+    {
+        await _unitOfWork.CourseRepository.RemoveAsync(id);
+        await _unitOfWork.SaveAsync();
+    }
 }

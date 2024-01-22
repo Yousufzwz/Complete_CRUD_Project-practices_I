@@ -39,4 +39,9 @@ public class CourseListModel
 
         };
     }
+
+    public async Task RemoveCourseAsync(Guid id)
+    {
+        await _courseManagementService.RemoveCourseAsync(id);
+    }
 }
