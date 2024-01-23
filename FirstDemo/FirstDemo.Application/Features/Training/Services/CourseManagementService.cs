@@ -1,5 +1,6 @@
 ﻿using FirstDemo.Domain;
 using FirstDemo.Domain.Entities;
+using FirstDemo.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -22,7 +23,7 @@ public class CourseManagementService : ICourseManagementService
     {
         bool isDuplicateTitle = await _unitOfWork.CourseRepository.IsTitleDuplicateAsync(title);
         if (isDuplicateTitle)
-            throw new DuplicateNameException();
+            throw new DuplicateTitleException();
 
         Course course = new Course()
         {

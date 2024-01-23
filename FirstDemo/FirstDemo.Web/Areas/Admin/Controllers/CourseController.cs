@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using FirstDemo.Domain.Exceptions;
 using FirstDemo.Infrastructure;
 using FirstDemo.Web.Areas.Admin.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -34,9 +35,36 @@ public class CourseController : Controller
     {
         if (ModelState.IsValid)
         {
-            courseModel.Resolve(_scope);
-            await courseModel.CreateCourseAsync();
-            return RedirectToAction("Index");
+            try
+            {
+                courseModel.Resolve(_scope);
+                await courseModel.CreateCourseAsync();
+                TempData.Put("ResponseMessage", new ResponseModel
+                {
+                    Message = "New course inserted successfully!",
+                    Type = ResponseTypes.Success
+                });
+                return RedirectToAction("Index");
+            }
+
+            catch(DuplicateTitleException dte)
+            {
+                TempData.Put("ResponseMessage", new ResponseModel
+                {
+                    Message= dte.Message,
+                    Type = ResponseTypes.Danger
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Server Error");
+                TempData.Put("ResponseMessage", new ResponseModel
+                {
+                    Message = "Failed to insert a course!",
+                    Type = ResponseTypes.Danger
+                });
+            }
+           
         }
 
           return View(courseModel);
