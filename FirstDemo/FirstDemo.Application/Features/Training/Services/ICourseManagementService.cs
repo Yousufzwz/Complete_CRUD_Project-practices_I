@@ -10,4 +10,6 @@ public interface ICourseManagementService
         GetDataOfCoursesAsync(int pageIndex, int pageSize, string searchText, string sortBy);
 
     Task RemoveCourseAsync(Guid id);
+    Task UpdateCourseAsync(Guid id, string title, string description, uint fees);
+    Task<Course> GetCourseAsync(Guid id);
 }

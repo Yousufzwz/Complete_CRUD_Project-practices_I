@@ -47,4 +47,25 @@ public class CourseManagementService : ICourseManagementService
         await _unitOfWork.CourseRepository.RemoveAsync(id);
         await _unitOfWork.SaveAsync();
     }
+
+    public async Task<Course> GetCourseAsync(Guid id)
+    {
+        return await _unitOfWork.CourseRepository.GetByIdAsync(id);
+    }
+
+    public async Task UpdateCourseAsync(Guid id, string title, string description, uint fees)
+    {
+        bool isDuplicateTitle = await _unitOfWork.CourseRepository.IsTitleDuplicateAsync(title, id);
+        if (isDuplicateTitle)
+            throw new DuplicateTitleException();
+
+        var course = await GetCourseAsync(id);
+        if(course != null)
+        {
+            course.Title = title;
+            course.Description = description;
+            course.Fees = fees;
+        }
+        await _unitOfWork.SaveAsync();
+    }
 }

@@ -30,7 +30,7 @@ public class CourseController : Controller
         return View(model);
     }
 
-    [HttpPost, ValidateAntiForgeryToken] 
+    [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CourseCreateModel courseModel)
     {
         if (ModelState.IsValid)
@@ -47,11 +47,11 @@ public class CourseController : Controller
                 return RedirectToAction("Index");
             }
 
-            catch(DuplicateTitleException dte)
+            catch (DuplicateTitleException dte)
             {
                 TempData.Put("ResponseMessage", new ResponseModel
                 {
-                    Message= dte.Message,
+                    Message = dte.Message,
                     Type = ResponseTypes.Danger
                 });
             }
@@ -64,10 +64,10 @@ public class CourseController : Controller
                     Type = ResponseTypes.Danger
                 });
             }
-           
+
         }
 
-          return View(courseModel);
+        return View(courseModel);
     }
 
     public async Task<JsonResult> GetCourses()
@@ -114,5 +114,53 @@ public class CourseController : Controller
         return RedirectToAction("Index");
     }
 
+    public async Task<IActionResult> Update(Guid id)
+    {
+        var courseModel = _scope.Resolve<CourseUpdateModel>();
+        await courseModel.UpdateAsync(id);
+        return View(courseModel);
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Update(CourseUpdateModel courseUpdateModel)
+    {
+        courseUpdateModel.Resolve(_scope);
+
+        if (ModelState.IsValid)
+        {
+            try
+            {
+                await courseUpdateModel.UpdateCourseAsync();
+                TempData.Put("ResponseMessage", new ResponseModel
+                {
+                    Message = "Course successfully updated!",
+                    Type = ResponseTypes.Success
+                });
+
+                return RedirectToAction("Index");
+
+            }
+            catch (DuplicateTitleException dte)
+            {
+                TempData.Put("ResponseMessage", new ResponseModel
+                {
+                    Message = dte.Message,
+                    Type = ResponseTypes.Danger
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Server Error");
+
+                TempData.Put("ResponseMessage", new ResponseModel
+                {
+                    Message = "Failed to update a course!",
+                    Type = ResponseTypes.Danger
+                });
+            }
+
+        }
+        return View(courseUpdateModel);
+    }
 }
 

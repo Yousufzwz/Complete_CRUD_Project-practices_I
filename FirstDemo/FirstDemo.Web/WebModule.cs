@@ -9,5 +9,6 @@ public class WebModule : Module
     {
         builder.RegisterType<CourseCreateModel>().AsSelf();
         builder.RegisterType<CourseListModel>().AsSelf();
+        builder.RegisterType<CourseUpdateModel>().AsSelf(); 
     }
 }  
