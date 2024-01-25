@@ -36,10 +36,12 @@ public class CourseManagementService : ICourseManagementService
         await _unitOfWork.SaveAsync();
     }
 
-    public async Task<(IList<Course> records, int total, int totalDisplay)> GetDataOfCoursesAsync(int pageIndex, int pageSize, string searchText, string sortBy)
+    public async Task<(IList<Course> records, int total, int totalDisplay)>
+     GetDataOfCoursesAsync(int pageIndex, int pageSize, string searchTitle,
+         uint searchFeesFrom, uint searchFeesTo, string sortBy)
     {
-        return await _unitOfWork.CourseRepository.GetTableDataAsync(searchText, sortBy,
-            pageIndex, pageSize);
+        return await _unitOfWork.CourseRepository.GetTableDataAsync(searchTitle,
+            searchFeesFrom, searchFeesTo, sortBy, pageIndex, pageSize);
     }
 
     public async Task RemoveCourseAsync(Guid id)

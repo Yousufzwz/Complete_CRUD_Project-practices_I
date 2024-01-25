@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.ConstrainedExecution;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,10 +31,17 @@ public class CourseRepository : Repository<Course, Guid>, ICourseRepository
     }
 
     public async Task<(IList<Course> records, int total, int totalDisplay)>
-      GetTableDataAsync(string searchText, string orderBy,
-          int pageIndex, int pageSize)
+    GetTableDataAsync(string searchTitle, uint searchFeesFrom,
+        uint searchFeesTo, string orderBy, int pageIndex, int pageSize)
     {
-        return await GetDynamicAsync(x => x.Title.Contains(searchText),
+        Expression<Func<Course, bool>> expression = null;
+
+        if (!string.IsNullOrWhiteSpace(searchTitle))
+            expression = x => x.Title.Contains(searchTitle) &&
+            (x.Fees >= searchFeesFrom && x.Fees <= searchFeesTo);
+
+        return await GetDynamicAsync(expression,
             orderBy, null, pageIndex, pageSize, true);
     }
+
 }

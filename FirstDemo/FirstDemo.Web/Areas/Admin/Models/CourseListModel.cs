@@ -1,27 +1,42 @@
-﻿using FirstDemo.Application.Features.Training.Services;
+﻿using Autofac;
+using FirstDemo.Application.Features.Training.Services;
 using FirstDemo.Infrastructure;
 using System.Web;
+
 
 namespace FirstDemo.Web.Areas.Admin.Models;
 
 public class CourseListModel
 {
+    private ILifetimeScope _scope;
     private ICourseManagementService _courseManagementService;
 
-    public CourseListModel() { }
+    public CourseSearch? SearchItem { get; set; }
+
+    public CourseListModel()
+    {
+    }
 
     public CourseListModel(ICourseManagementService courseManagementService)
     {
         _courseManagementService = courseManagementService;
     }
 
-    public async Task<object> GetDataOfCoursesAsync(DataTablesAjaxRequestUtility dataTablesInfo)
+    public void Resolve(ILifetimeScope scope)
+    {
+        _scope = scope;
+        _courseManagementService = _scope.Resolve<ICourseManagementService>();
+    }
+
+    public async Task<object> GetPagedCoursesAsync(DataTablesAjaxRequestUtility dataTablesUtility)
     {
         var data = await _courseManagementService.GetDataOfCoursesAsync(
-            dataTablesInfo.PageIndex,
-            dataTablesInfo.PageSize,
-            dataTablesInfo.SearchText,
-            dataTablesInfo.GetSortText(new string[] { "Title", "Description", "Fees" }));
+            dataTablesUtility.PageIndex,
+            dataTablesUtility.PageSize,
+            SearchItem.Title,
+            SearchItem.CourseFeesFrom,
+            SearchItem.CourseFeesTo,
+            dataTablesUtility.GetSortText(new string[] { "Title", "Description", "Fees" }));
 
         return new
         {
@@ -30,17 +45,16 @@ public class CourseListModel
             data = (from record in data.records
                     select new string[]
                     {
-                        HttpUtility.HtmlEncode(record.Title),
-                        HttpUtility.HtmlEncode(record.Description),
-                        record.Fees.ToString(),
-                        record.Id.ToString(),
+                            HttpUtility.HtmlEncode(record.Title),
+                            HttpUtility.HtmlEncode(record.Description),
+                            record.Fees.ToString(),
+                            record.Id.ToString()
                     }
-                    ).ToArray()
-
+                ).ToArray()
         };
     }
 
-    public async Task RemoveCourseAsync(Guid id)
+    internal async Task RemoveCourseAsync(Guid id)
     {
         await _courseManagementService.RemoveCourseAsync(id);
     }
