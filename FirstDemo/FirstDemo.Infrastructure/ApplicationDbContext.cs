@@ -31,6 +31,16 @@ public class ApplicationDbContext : IdentityDbContext, IApplicationDbContext
         base.OnConfiguring(optionsBuilder);
     }
 
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        builder.Entity<Course>().HasData(new Course[]
+        {
+            new Course{Id = Guid.NewGuid(), Title= "Demo Course 1", Description= "Test", Fees= 3000},
+            new Course{Id = Guid.NewGuid(), Title= "Demo Course 2", Description= "Test", Fees= 4000}
+        });
+        base.OnModelCreating(builder);
+    }
+
 
     public DbSet<Course> Courses{ get; set; }
 }
