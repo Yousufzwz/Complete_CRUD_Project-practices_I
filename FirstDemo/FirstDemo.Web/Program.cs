@@ -38,6 +38,8 @@ try
 
     builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
+    builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
     builder.Services.AddControllersWithViews();
 
     var app = builder.Build();

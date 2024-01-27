@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using AutoMapper;
 using FirstDemo.Application.Features.Training.Services;
 using FirstDemo.Domain.Entities;
 using System.ComponentModel.DataAnnotations;
@@ -8,6 +9,7 @@ namespace FirstDemo.Web.Areas.Admin.Models;
 public class CourseUpdateModel
 {
     private ICourseManagementService _courseService;
+    private IMapper _mapper;
 
     [Required]
     public Guid Id { get; set; }
@@ -19,14 +21,16 @@ public class CourseUpdateModel
 
     public CourseUpdateModel() { }  
 
-    public CourseUpdateModel(ICourseManagementService courseService)
+    public CourseUpdateModel(ICourseManagementService courseService, IMapper mapper)
     {
         _courseService = courseService;
+        _mapper = mapper;
     }
 
     public void Resolve(ILifetimeScope scope)
     {
         _courseService = scope.Resolve<ICourseManagementService>();
+        _mapper = scope.Resolve<IMapper>();
     }
 
     public async Task UpdateAsync(Guid id)
@@ -34,10 +38,7 @@ public class CourseUpdateModel
         Course course = await _courseService.GetCourseAsync(id);
         if (course != null)
         {
-            Id = course.Id;
-            Title = course.Title;
-            Description = course.Description;
-            Fees = course.Fees;
+            _mapper.Map(course, this);
         }
     }
 
