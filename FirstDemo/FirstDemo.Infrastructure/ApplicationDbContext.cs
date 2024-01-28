@@ -33,14 +33,29 @@ public class ApplicationDbContext : IdentityDbContext, IApplicationDbContext
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
+        builder.Entity<CourseEnrollment>().ToTable("CourseEnrollments");
+
+        builder.Entity<CourseEnrollment>().HasKey(x => new { x.CourseId, x.StudentId });
+
+        builder.Entity<CourseEnrollment>()
+            .HasOne<Course>()
+            .WithMany()
+            .HasForeignKey(x => x.CourseId);
+
+        builder.Entity<CourseEnrollment>()
+            .HasOne<Student>()
+            .WithMany()
+            .HasForeignKey(x => x.StudentId);
+
         builder.Entity<Course>().HasData(new Course[]
         {
-            new Course{Id = Guid.NewGuid(), Title= "Demo Course 1", Description= "Test", Fees= 3000},
-            new Course{Id = Guid.NewGuid(), Title= "Demo Course 2", Description= "Test", Fees= 4000}
+            new Course{Id = new Guid("6e07762a-c636-404f-bb8f-eef11dce0d21"), Title= "Demo Course 1", Description= "Test", Fees= 3000},
+            new Course{Id = new Guid("927ed339-165d-482b-8016-420a2b10d687"), Title= "Demo Course 2", Description= "Test", Fees= 4000}
         });
         base.OnModelCreating(builder);
     }
 
 
     public DbSet<Course> Courses{ get; set; }
+    public DbSet<Student> Students { get; set; }
 }

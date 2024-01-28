@@ -4,6 +4,7 @@ using FirstDemo.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FirstDemo.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240128061516_CreateCourseEnrollments")]
+    partial class CreateCourseEnrollments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -46,14 +49,14 @@ namespace FirstDemo.Web.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("6e07762a-c636-404f-bb8f-eef11dce0d21"),
+                            Id = new Guid("2af83630-863e-4283-966d-3dea4ebc9b16"),
                             Description = "Test",
                             Fees = 3000L,
                             Title = "Demo Course 1"
                         },
                         new
                         {
-                            Id = new Guid("927ed339-165d-482b-8016-420a2b10d687"),
+                            Id = new Guid("fd5cb08f-ee2e-4388-a61b-0a1af1eaef06"),
                             Description = "Test",
                             Fees = 4000L,
                             Title = "Demo Course 2"
@@ -75,7 +78,7 @@ namespace FirstDemo.Web.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("CourseEnrollments", (string)null);
+                    b.ToTable("CourseEnrollment");
                 });
 
             modelBuilder.Entity("FirstDemo.Domain.Entities.Student", b =>
