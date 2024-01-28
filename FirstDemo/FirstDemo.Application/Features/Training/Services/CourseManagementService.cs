@@ -1,4 +1,5 @@
-﻿using FirstDemo.Domain;
+﻿using FirstDemo.Application.Features.Training.DTOs;
+using FirstDemo.Domain;
 using FirstDemo.Domain.Entities;
 using FirstDemo.Domain.Exceptions;
 using System;
@@ -69,5 +70,15 @@ public class CourseManagementService : ICourseManagementService
             course.Fees = fees;
         }
         await _unitOfWork.SaveAsync();
+    }
+
+    public async Task<(IList<CourseEnrollmentDTO> records, int total, int totalDisplay)>
+            GetCourseEnrollmentsAsync(int pageIndex, int pageSize, string orderBy,
+            string courseName, string studentName, DateTime enrollmentDateFrom,
+            DateTime enrollmentDateTo)
+    {
+        return await _unitOfWork.GetCourseEnrollmentsAsync(
+            pageIndex, pageSize, orderBy, courseName,
+            studentName, enrollmentDateFrom, enrollmentDateTo);
     }
 }
