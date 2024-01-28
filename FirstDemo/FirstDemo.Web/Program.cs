@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
 using System.Reflection;
+using FirstDemo.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,7 +41,11 @@ try
 
     builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+    builder.Services.AddIdentity();
+
     builder.Services.AddControllersWithViews();
+
+    builder.Services.AddCookieAuthentication();
 
     var app = builder.Build();
 
@@ -81,3 +86,5 @@ finally
 {
     Log.CloseAndFlush();
 }
+
+builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>();
