@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using FirstDemo.Web.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FirstDemo.Web.Controllers;
@@ -23,23 +24,28 @@ public class AccountController : Controller
     }
 
     [HttpPost, ValidateAntiForgeryToken]
-    public IActionResult Register(RegistrationModel model)
+    public async Task<IActionResult> Register(RegistrationModel model)
     {
-        IList<string> errors = new List<string>();
+        (IEnumerable<IdentityError>? errors, string? redirectLocation) response = (null, null);
         if (ModelState.IsValid)
         {
             model.Resolve(_scope);
-            model.Register();
+            response = await model.RegisterAsync(Url.Content("~/"));
         }
 
-        if (errors.Count > 0)
+        if (response.errors is not null)
         {
-            foreach (var error in errors)
+            foreach (var error in response.errors)
             {
-                ModelState.AddModelError(string.Empty, error);
+                ModelState.AddModelError(string.Empty, error.Description);
             }
+            return View(model);
         }
-        return View(model);
-
+        else
+            return Redirect(response.redirectLocation);
     }
 }
+        
+
+    
+

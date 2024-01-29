@@ -1,7 +1,9 @@
 ﻿using Autofac;
 using FirstDemo.Infrastructure.Membership;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using System.ComponentModel.DataAnnotations;
+using System.Text;
 
 namespace FirstDemo.Web.Models;
 
@@ -29,14 +31,46 @@ public class RegistrationModel
     public string ConfirmPassword { get; set; }
     public string? ReturnUrl { get; set; }
 
-    internal async Task Register()
+    public RegistrationModel() { }
+
+    public RegistrationModel(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
     {
-        throw new NotImplementedException();
+        _userManager = userManager;
+        _signInManager = signInManager;
     }
 
+    internal async Task<(IEnumerable<IdentityError>? errors, string? redirectLocation)> RegisterAsync(string urlPrefix)
+    {
+        ReturnUrl ??= urlPrefix;
+        var user = new ApplicationUser { UserName = Email, Email = Email, FirstName = "", LastName = "" };
+        var result = await _userManager.CreateAsync(user, Password);
+        if (result.Succeeded)
+        {
+            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+            var callbackUrl = $"{urlPrefix}/Account/ConfirmEmail?userId={user.Id}&code={code}&returnUrl={ReturnUrl}";
+
+            if (_userManager.Options.SignIn.RequireConfirmedAccount)
+            {
+                var confirmationPageLink = $"RegisterConfirmation?email={Email}&returnUrl={ReturnUrl}";
+                return (null, confirmationPageLink);
+            }
+            else
+            {
+                await _signInManager.SignInAsync(user, isPersistent: false);
+                return (null, ReturnUrl);
+            }
+        }
+        else
+        {
+            return (result.Errors, null);
+        }
+    }
     internal void Resolve(ILifetimeScope scope)
     {
         _scope = scope;
+        _userManager = _scope.Resolve<UserManager<ApplicationUser>>();
+        _signInManager = _scope.Resolve<SignInManager<ApplicationUser>>();
     }
 
 }
