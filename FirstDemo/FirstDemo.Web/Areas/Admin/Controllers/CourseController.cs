@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FirstDemo.Web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(Roles = "Supervisor")]
+[Authorize]
 public class CourseController : Controller
 {
     private readonly ILifetimeScope _scope;
@@ -21,6 +21,7 @@ public class CourseController : Controller
         _logger = logger;
     }
 
+    [Authorize(Policy = "CourseViewRequirementPolicy")]
     public IActionResult Index()
     {
         return View();
@@ -134,7 +135,7 @@ public class CourseController : Controller
         return RedirectToAction("Index");
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = "CourseUpdatePolicy")]
     public async Task<IActionResult> Update(Guid id)
     {
         var courseModel = _scope.Resolve<CourseUpdateModel>();
@@ -142,7 +143,7 @@ public class CourseController : Controller
         return View(courseModel);
     }
 
-    [HttpPost, ValidateAntiForgeryToken, Authorize(Roles = "Admin")]
+    [HttpPost, ValidateAntiForgeryToken, Authorize(Policy = "CourseUpdatePolicy")]
     public async Task<IActionResult> Update(CourseUpdateModel courseUpdateModel)
     {
         courseUpdateModel.Resolve(_scope);

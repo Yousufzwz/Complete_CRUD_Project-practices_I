@@ -10,6 +10,8 @@ using Serilog.Events;
 using System.Reflection;
 using FirstDemo.Infrastructure.Extensions;
 using FirstDemo.Infrastructure.Email;
+using Microsoft.AspNetCore.Authorization;
+using FirstDemo.Infrastructure.Requirements;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,9 +58,26 @@ try
             policy.RequireRole("Supervisor");
             policy.RequireRole("Admin");
         });
+
+        options.AddPolicy("CourseUpdatePolicy", policy =>
+        {
+            policy.RequireAuthenticatedUser();
+            policy.RequireClaim("UpdateCourse", "true");
+        });
+        options.AddPolicy("CourseViewPolicy", policy =>
+        {
+            policy.RequireAuthenticatedUser();
+            policy.RequireClaim("ViewCourse", "true");
+        });
+        options.AddPolicy("CourseViewRequirementPolicy", policy =>
+        {
+            policy.RequireAuthenticatedUser();
+            policy.Requirements.Add(new CourseViewRequirement());
+        });
     });
 
-        builder.Services.Configure<Smtp>(builder.Configuration.GetSection("Smtp"));
+    builder.Services.AddSingleton<IAuthorizationHandler, CourseViewRequirementHandler>();
+    builder.Services.Configure<Smtp>(builder.Configuration.GetSection("Smtp"));
 
     var app = builder.Build();
 

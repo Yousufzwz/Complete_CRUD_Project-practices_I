@@ -57,8 +57,12 @@ public class RegistrationModel
         var result = await _userManager.CreateAsync(user, Password);
         if (result.Succeeded)
         {
-            await _userManager.AddToRoleAsync(user, "Supervisor");
-            await _userManager.AddToRoleAsync(user, "Admin");
+            //await _userManager.AddToRoleAsync(user, "Supervisor");
+            //await _userManager.AddToRoleAsync(user, "Admin");
+
+            await _userManager.AddClaimAsync(user, new System.Security.Claims.Claim("UpdateCourse", "true"));
+            await _userManager.AddClaimAsync(user, new System.Security.Claims.Claim("ViewCourse", "true"));
+
 
 
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
