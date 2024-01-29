@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using FirstDemo.Infrastructure.Membership;
 using FirstDemo.Web.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -9,12 +10,14 @@ public class AccountController : Controller
 {
     private readonly ILifetimeScope _scope;
     private readonly ILogger<AccountController> _logger;
+    private readonly RoleManager<ApplicationRole> _roleManager; 
 
     public AccountController(ILifetimeScope scope,
-        ILogger<AccountController> logger)
+        ILogger<AccountController> logger, RoleManager<ApplicationRole> roleManager)
     {
         _scope = scope;
         _logger = logger;
+        _roleManager = roleManager;
     }
 
     public IActionResult Register()
@@ -44,6 +47,15 @@ public class AccountController : Controller
         return View(model);
 
     }
+
+    public async Task<IActionResult> CreateRoles()
+    {
+        await _roleManager.CreateAsync(new ApplicationRole { Name = "Admin" });
+        await _roleManager.CreateAsync(new ApplicationRole { Name = "Supervisor" });
+
+        return View();
+    }
+
 }
         
 

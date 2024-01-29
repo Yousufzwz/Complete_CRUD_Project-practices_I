@@ -57,6 +57,10 @@ public class RegistrationModel
         var result = await _userManager.CreateAsync(user, Password);
         if (result.Succeeded)
         {
+            await _userManager.AddToRoleAsync(user, "Supervisor");
+            await _userManager.AddToRoleAsync(user, "Admin");
+
+
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
             var callbackUrl = $"{urlPrefix}/Account/ConfirmEmail?userId={user.Id}&code={code}&returnUrl={ReturnUrl}";

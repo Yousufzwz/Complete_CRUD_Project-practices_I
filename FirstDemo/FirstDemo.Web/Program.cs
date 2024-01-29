@@ -48,7 +48,17 @@ try
 
     builder.Services.AddCookieAuthentication();
 
-    builder.Services.Configure<Smtp>(builder.Configuration.GetSection("Smtp"));
+    builder.Services.AddAuthorization(options =>
+    {
+        options.AddPolicy("SuperAdmin", policy =>
+        {
+            policy.RequireAuthenticatedUser();
+            policy.RequireRole("Supervisor");
+            policy.RequireRole("Admin");
+        });
+    });
+
+        builder.Services.Configure<Smtp>(builder.Configuration.GetSection("Smtp"));
 
     var app = builder.Build();
 
@@ -69,6 +79,8 @@ try
 
     app.UseRouting();
 
+    app.UseAuthorization();
+
     app.MapControllerRoute(
         name: "areas",
         pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
@@ -76,6 +88,8 @@ try
     app.MapControllerRoute(
         name: "default",
         pattern: "{controller=Home}/{action=Index}/{id?}");
+
+    app.MapRazorPages();
 
     app.Run();
 

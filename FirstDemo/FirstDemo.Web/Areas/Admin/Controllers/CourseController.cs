@@ -2,11 +2,13 @@
 using FirstDemo.Domain.Exceptions;
 using FirstDemo.Infrastructure;
 using FirstDemo.Web.Areas.Admin.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FirstDemo.Web.Areas.Admin.Controllers;
 
 [Area("Admin")]
+[Authorize(Roles = "Supervisor")]
 public class CourseController : Controller
 {
     private readonly ILifetimeScope _scope;
@@ -24,13 +26,14 @@ public class CourseController : Controller
         return View();
     }
 
+    [Authorize(Roles = "Admin")]
     public IActionResult Create()
     {
         var model = _scope.Resolve<CourseCreateModel>();
         return View(model);
     }
 
-    [HttpPost, ValidateAntiForgeryToken]
+    [HttpPost, ValidateAntiForgeryToken, Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create(CourseCreateModel courseModel)
     {
         if (ModelState.IsValid)
@@ -97,7 +100,7 @@ public class CourseController : Controller
     }
 
 
-    [HttpPost, ValidateAntiForgeryToken]
+    [HttpPost, ValidateAntiForgeryToken, Authorize(Policy = "SuperAdmin")]
     public async Task<IActionResult> Delete(Guid id)
     {
         var courseModel = _scope.Resolve<CourseListModel>();
@@ -131,6 +134,7 @@ public class CourseController : Controller
         return RedirectToAction("Index");
     }
 
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Update(Guid id)
     {
         var courseModel = _scope.Resolve<CourseUpdateModel>();
@@ -138,7 +142,7 @@ public class CourseController : Controller
         return View(courseModel);
     }
 
-    [HttpPost, ValidateAntiForgeryToken]
+    [HttpPost, ValidateAntiForgeryToken, Authorize(Roles = "Admin")]
     public async Task<IActionResult> Update(CourseUpdateModel courseUpdateModel)
     {
         courseUpdateModel.Resolve(_scope);
