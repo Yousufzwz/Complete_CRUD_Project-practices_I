@@ -1,9 +1,11 @@
 ﻿using Autofac;
+using FirstDemo.Application.Utilities;
 using FirstDemo.Infrastructure.Membership;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using System.Text.Encodings.Web;
 
 namespace FirstDemo.Web.Models;
 
@@ -12,6 +14,7 @@ public class RegistrationModel
     private ILifetimeScope _scope;
     private UserManager<ApplicationUser> _userManager;
     private SignInManager<ApplicationUser> _signInManager;
+    private IEmailService _emailService;
 
     [Required]
     [EmailAddress]
@@ -29,14 +32,22 @@ public class RegistrationModel
     [Display(Name = "Confirm password")]
     [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
     public string ConfirmPassword { get; set; }
+
+    [Display(Name = "First Name")]
+    public string? FirstName { get; set; }
+
+    [Display(Name = "Last Name")]
+    public string? LastName { get; set; }
     public string? ReturnUrl { get; set; }
 
     public RegistrationModel() { }
 
-    public RegistrationModel(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+    public RegistrationModel(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager,
+        IEmailService emailService)
     {
         _userManager = userManager;
         _signInManager = signInManager;
+        _emailService = emailService;
     }
 
     internal async Task<(IEnumerable<IdentityError>? errors, string? redirectLocation)> RegisterAsync(string urlPrefix)
@@ -49,6 +60,9 @@ public class RegistrationModel
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
             var callbackUrl = $"{urlPrefix}/Account/ConfirmEmail?userId={user.Id}&code={code}&returnUrl={ReturnUrl}";
+
+            _emailService.SendSingleEmail(FirstName + " " + LastName, Email, "Confirm your email",
+                    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
             if (_userManager.Options.SignIn.RequireConfirmedAccount)
             {
@@ -71,6 +85,7 @@ public class RegistrationModel
         _scope = scope;
         _userManager = _scope.Resolve<UserManager<ApplicationUser>>();
         _signInManager = _scope.Resolve<SignInManager<ApplicationUser>>();
+        _emailService = _scope.Resolve<IEmailService>();
     }
 
 }

@@ -9,6 +9,7 @@ using Serilog;
 using Serilog.Events;
 using System.Reflection;
 using FirstDemo.Infrastructure.Extensions;
+using FirstDemo.Infrastructure.Email;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +47,8 @@ try
     builder.Services.AddControllersWithViews();
 
     builder.Services.AddCookieAuthentication();
+
+    builder.Services.Configure<Smtp>(builder.Configuration.GetSection("Smtp"));
 
     var app = builder.Build();
 
