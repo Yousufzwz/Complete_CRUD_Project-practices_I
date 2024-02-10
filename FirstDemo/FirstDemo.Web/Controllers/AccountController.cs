@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using FirstDemo.Infrastructure.Membership;
 using FirstDemo.Web.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,13 +12,16 @@ public class AccountController : Controller
     private readonly ILifetimeScope _scope;
     private readonly ILogger<AccountController> _logger;
     private readonly RoleManager<ApplicationRole> _roleManager; 
+    private readonly SignInManager<ApplicationUser> _signInManager;
 
     public AccountController(ILifetimeScope scope,
-        ILogger<AccountController> logger, RoleManager<ApplicationRole> roleManager)
+        ILogger<AccountController> logger, RoleManager<ApplicationRole> roleManager,
+        SignInManager<ApplicationUser> signInManager)
     {
         _scope = scope;
         _logger = logger;
         _roleManager = roleManager;
+        _signInManager = signInManager;
     }
 
     public IActionResult Register()
@@ -46,6 +50,59 @@ public class AccountController : Controller
         }
         return View(model);
 
+    }
+
+    public async Task<IActionResult> LoginAsync(string returnUrl = null)
+    {
+        returnUrl ??= Url.Content("~/");
+
+        var model = _scope.Resolve<LoginModel>();
+
+        // Clear the existing external cookie to ensure a clean login process
+        await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+
+        model.ReturnUrl = returnUrl;
+
+        return View(model);
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> LoginAsync(LoginModel model)
+    {
+        model.ReturnUrl ??= Url.Content("~/");
+
+        if (ModelState.IsValid)
+        {
+            // This doesn't count login failures towards account lockout
+            // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+            if (result.Succeeded)
+            {
+                return LocalRedirect(model.ReturnUrl);
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+            }
+        }
+
+        // If we got this far, something failed, redisplay form
+        return View(model);
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> LogoutAsync(string returnUrl = null)
+    {
+        await _signInManager.SignOutAsync();
+
+        if (returnUrl != null)
+        {
+            return LocalRedirect(returnUrl);
+        }
+        else
+        {
+            return RedirectToAction("Index", "Home");
+        }
     }
 
     public async Task<IActionResult> CreateRoles()

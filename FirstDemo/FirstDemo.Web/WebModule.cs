@@ -12,5 +12,6 @@ public class WebModule : Module
         builder.RegisterType<CourseListModel>().AsSelf();
         builder.RegisterType<CourseUpdateModel>().AsSelf(); 
         builder.RegisterType<RegistrationModel>().AsSelf();
+        builder.RegisterType<LoginModel>().AsSelf();
     }
 }  
